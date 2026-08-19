@@ -44,6 +44,132 @@ const progressBar = document.getElementById("progressBar");
 
 const capsuleContent = document.getElementById("capsuleContent");
 
+// ==========================================
+// AMBIENT AUDIO
+// ==========================================
+
+const enterOverlay =
+    document.getElementById("enterOverlay");
+
+const enterButton =
+    document.getElementById("enterButton");
+
+const rainAudio =
+    document.getElementById("rainAudio");
+
+const lofiAudio =
+    document.getElementById("lofiAudio");
+
+const audioControls =
+    document.getElementById("audioControls");
+
+const audioToggle =
+    document.getElementById("audioToggle");
+
+const rainVolume =
+    document.getElementById("rainVolume");
+
+const lofiVolume =
+    document.getElementById("lofiVolume");
+
+
+let audioEnabled = true;
+
+
+// Initial volume
+
+rainAudio.volume = 0.4;
+
+lofiAudio.volume = 0.2;
+
+
+// ==========================================
+// ENTER WEBSITE
+// ==========================================
+
+enterButton.addEventListener("click", async () => {
+
+    // Start audio
+
+    try {
+
+        await rainAudio.play();
+
+        await lofiAudio.play();
+
+    } catch (error) {
+
+        console.log(
+            "Audio could not start:",
+            error
+        );
+
+    }
+
+
+    // Fade overlay
+
+    enterOverlay.classList.add("hidden");
+
+
+    // Show audio controls
+
+    audioControls.classList.remove("hidden");
+
+});
+
+
+// ==========================================
+// RAIN VOLUME
+// ==========================================
+
+rainVolume.addEventListener("input", () => {
+
+    rainAudio.volume =
+        Number(rainVolume.value);
+
+});
+
+
+// ==========================================
+// LOFI VOLUME
+// ==========================================
+
+lofiVolume.addEventListener("input", () => {
+
+    lofiAudio.volume =
+        Number(lofiVolume.value);
+
+});
+
+
+// ==========================================
+// MUTE
+// ==========================================
+
+audioToggle.addEventListener("click", () => {
+
+    audioEnabled = !audioEnabled;
+
+
+    if (audioEnabled) {
+
+        rainAudio.muted = false;
+        lofiAudio.muted = false;
+
+        audioToggle.textContent = "🔊";
+
+    } else {
+
+        rainAudio.muted = true;
+        lofiAudio.muted = true;
+
+        audioToggle.textContent = "🔇";
+
+    }
+
+});
+
 
 // ==========================================
 // STORAGE

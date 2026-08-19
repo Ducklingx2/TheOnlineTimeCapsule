@@ -11,6 +11,106 @@
 
 <body>
 
+
+    <!-- =========================================
+     ENTER OVERLAY
+========================================= -->
+
+<div id="enterOverlay" class="enter-overlay">
+
+    <div class="enter-content">
+
+        <div class="enter-icon">
+            ⏳
+        </div>
+
+        <p class="enter-label">
+            TIME CAPSULE
+        </p>
+
+        <h1>
+            A place for<br>
+            <span>the future.</span>
+        </h1>
+
+        <p class="enter-description">
+            Put something here today.
+            Come back when you're ready.
+        </p>
+
+        <button id="enterButton" class="enter-button">
+            Enter Time Capsule
+            <span>→</span>
+        </button>
+
+        <p class="audio-note">
+            🌧️ Ambient rain &nbsp;•&nbsp; 🎵 Lo-fi
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================
+     AUDIO
+========================================= -->
+
+<audio id="rainAudio" loop preload="auto">
+    <source src="assets/rain.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="lofiAudio" loop preload="auto">
+    <source src="assets/lofi.mp3" type="audio/mpeg">
+</audio>
+
+
+<!-- =========================================
+     AUDIO CONTROLS
+========================================= -->
+
+<div id="audioControls" class="audio-controls hidden">
+
+    <button id="audioToggle" class="audio-toggle">
+        🔊
+    </button>
+
+    <div class="audio-panel">
+
+        <div class="audio-row">
+
+            <span>🌧️</span>
+
+            <input
+                id="rainVolume"
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value="0.4"
+            >
+
+        </div>
+
+        <div class="audio-row">
+
+            <span>🎵</span>
+
+            <input
+                id="lofiVolume"
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value="0.2"
+            >
+
+        </div>
+
+    </div>
+
+</div>
+    
     <!-- =========================================
          BACKGROUND
     ========================================== -->

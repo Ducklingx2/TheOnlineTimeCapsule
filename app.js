@@ -18,53 +18,83 @@ let currentCapsuleId = null;
 // DOM
 // ==========================================
 
-const homePage = document.getElementById("homePage");
-const createPage = document.getElementById("createPage");
-const capsulePage = document.getElementById("capsulePage");
+const homePage =
+    document.getElementById("homePage");
 
-const capsuleGrid = document.getElementById("capsuleGrid");
-const emptyState = document.getElementById("emptyState");
-const capsuleCount = document.getElementById("capsuleCount");
+const createPage =
+    document.getElementById("createPage");
 
-const capsuleForm = document.getElementById("capsuleForm");
+const capsulePage =
+    document.getElementById("capsulePage");
 
-const titleInput = document.getElementById("title");
-const messageInput = document.getElementById("message");
-const unlockDateInput = document.getElementById("unlockDate");
 
-const charCount = document.getElementById("charCount");
+const capsuleGrid =
+    document.getElementById("capsuleGrid");
 
-const sealModal = document.getElementById("sealModal");
-const deleteModal = document.getElementById("deleteModal");
+const emptyState =
+    document.getElementById("emptyState");
 
-const sealingState = document.getElementById("sealingState");
-const sealedState = document.getElementById("sealedState");
+const capsuleCount =
+    document.getElementById("capsuleCount");
 
-const progressBar = document.getElementById("progressBar");
 
-const capsuleContent = document.getElementById("capsuleContent");
+const capsuleForm =
+    document.getElementById("capsuleForm");
+
+
+const titleInput =
+    document.getElementById("title");
+
+const messageInput =
+    document.getElementById("message");
+
+const unlockDateInput =
+    document.getElementById("unlockDate");
+
+
+const charCount =
+    document.getElementById("charCount");
+
+
+const sealModal =
+    document.getElementById("sealModal");
+
+const deleteModal =
+    document.getElementById("deleteModal");
+
+
+const sealingState =
+    document.getElementById("sealingState");
+
+const sealedState =
+    document.getElementById("sealedState");
+
+
+const progressBar =
+    document.getElementById("progressBar");
+
+
+const capsuleContent =
+    document.getElementById("capsuleContent");
+
 
 // ==========================================
 // AMBIENT AUDIO
 // ==========================================
 
-const enterOverlay =
-    document.getElementById("enterOverlay");
-
-const enterButton =
-    document.getElementById("enterButton");
-
 const rainAudio =
     document.getElementById("rainAudio");
 
-const lofiAudio =
-    document.getElementById("lofiAudio");
+const musicAudio =
+    document.getElementById("musicAudio");
+
 
 const audioControls =
     document.getElementById("audioControls");
 
 const audioToggle =
     document.getElementById("audioToggle");
+
 
 const rainVolume =
     document.getElementById("rainVolume");
@@ -75,100 +105,284 @@ const lofiVolume =
 
 let audioEnabled = true;
 
+let atmosphereStarted = false;
 
-// Initial volume
-
-rainAudio.volume = 0.4;
-
-lofiAudio.volume = 0.2;
+let currentTrack = 0;
 
 
 // ==========================================
-// ENTER WEBSITE
+// PLAYLIST
 // ==========================================
 
-enterButton.addEventListener("click", async () => {
+const playlist = [
 
-    // Start audio
+    "assets/Minecraft Music.mp3",
 
-    try {
+    "assets/Minecraft Music2.mp3",
 
-        await rainAudio.play();
+    "assets/Minecraft Music3.mp3",
 
-        await lofiAudio.play();
+    "assets/Minecraft Music4.mp3"
 
-    } catch (error) {
+    "assets/Minecraft Music5.mp3"
 
-        console.log(
-            "Audio could not start:",
-            error
-        );
+];
+
+
+// ==========================================
+// AUDIO VOLUME
+// ==========================================
+
+if (rainAudio) {
+
+    rainAudio.volume = 0.35;
+
+}
+
+if (musicAudio) {
+
+    musicAudio.volume = 0.20;
+
+}
+
+
+// ==========================================
+// LOAD MUSIC TRACK
+// ==========================================
+
+function loadTrack(index) {
+
+    if (!musicAudio) {
+
+        return;
 
     }
 
 
-    // Fade overlay
-
-    enterOverlay.classList.add("hidden");
+    currentTrack = index;
 
 
-    // Show audio controls
+    musicAudio.src =
+        playlist[currentTrack];
 
-    audioControls.classList.remove("hidden");
 
-});
+    musicAudio.load();
+
+}
+
+
+// ==========================================
+// PLAY MUSIC
+// ==========================================
+
+function playCurrentTrack() {
+
+    if (!musicAudio) {
+
+        return;
+
+    }
+
+
+    musicAudio.play()
+        .catch(error => {
+
+            console.log(
+                "Music could not start:",
+                error
+            );
+
+        });
+
+}
+
+
+// ==========================================
+// NEXT TRACK
+// ==========================================
+
+if (musicAudio) {
+
+    musicAudio.addEventListener(
+        "ended",
+        () => {
+
+            currentTrack++;
+
+
+            // Restart playlist
+            // after the final song.
+
+            if (
+                currentTrack >= playlist.length
+            ) {
+
+                currentTrack = 0;
+
+            }
+
+
+            loadTrack(currentTrack);
+
+            playCurrentTrack();
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// START ATMOSPHERE
+// ==========================================
+
+function startAtmosphere() {
+
+    if (atmosphereStarted) {
+
+        return;
+
+    }
+
+
+    atmosphereStarted = true;
+
+
+    // --------------------------------------
+    // RAIN
+    // --------------------------------------
+
+    if (rainAudio) {
+
+        rainAudio.play()
+            .catch(error => {
+
+                console.log(
+                    "Rain could not start:",
+                    error
+                );
+
+            });
+
+    }
+
+
+    // --------------------------------------
+    // MUSIC
+    // --------------------------------------
+
+    loadTrack(0);
+
+    playCurrentTrack();
+
+
+    // --------------------------------------
+    // AUDIO CONTROLS
+    // --------------------------------------
+
+    if (audioControls) {
+
+        audioControls.classList.remove(
+            "hidden"
+        );
+
+    }
+
+}
 
 
 // ==========================================
 // RAIN VOLUME
 // ==========================================
 
-rainVolume.addEventListener("input", () => {
+if (rainVolume) {
 
-    rainAudio.volume =
-        Number(rainVolume.value);
+    rainVolume.addEventListener(
+        "input",
+        () => {
 
-});
+            if (rainAudio) {
+
+                rainAudio.volume =
+                    Number(
+                        rainVolume.value
+                    );
+
+            }
+
+        }
+    );
+
+}
 
 
 // ==========================================
-// LOFI VOLUME
+// MUSIC VOLUME
 // ==========================================
 
-lofiVolume.addEventListener("input", () => {
+if (lofiVolume) {
 
-    lofiAudio.volume =
-        Number(lofiVolume.value);
+    lofiVolume.addEventListener(
+        "input",
+        () => {
 
-});
+            if (musicAudio) {
+
+                musicAudio.volume =
+                    Number(
+                        lofiVolume.value
+                    );
+
+            }
+
+        }
+    );
+
+}
 
 
 // ==========================================
 // MUTE
 // ==========================================
 
-audioToggle.addEventListener("click", () => {
+if (audioToggle) {
 
-    audioEnabled = !audioEnabled;
+    audioToggle.addEventListener(
+        "click",
+        event => {
+
+            event.stopPropagation();
 
 
-    if (audioEnabled) {
+            audioEnabled =
+                !audioEnabled;
 
-        rainAudio.muted = false;
-        lofiAudio.muted = false;
 
-        audioToggle.textContent = "🔊";
+            if (rainAudio) {
 
-    } else {
+                rainAudio.muted =
+                    !audioEnabled;
 
-        rainAudio.muted = true;
-        lofiAudio.muted = true;
+            }
 
-        audioToggle.textContent = "🔇";
 
-    }
+            if (musicAudio) {
 
-});
+                musicAudio.muted =
+                    !audioEnabled;
+
+            }
+
+
+            audioToggle.textContent =
+                audioEnabled
+                    ? "🔊"
+                    : "🔇";
+
+        }
+    );
+
+}
 
 
 // ==========================================
@@ -179,13 +393,23 @@ function loadCapsules() {
 
     try {
 
-        const saved = localStorage.getItem("timeCapsules");
+        const saved =
+            localStorage.getItem(
+                "timeCapsules"
+            );
 
-        return saved ? JSON.parse(saved) : [];
+
+        return saved
+            ? JSON.parse(saved)
+            : [];
 
     } catch (error) {
 
-        console.error("Could not load capsules:", error);
+        console.error(
+            "Could not load capsules:",
+            error
+        );
+
 
         return [];
 
@@ -211,14 +435,21 @@ function saveCapsules() {
 function showPage(page) {
 
     homePage.classList.add("hidden");
+
     createPage.classList.add("hidden");
+
     capsulePage.classList.add("hidden");
+
 
     page.classList.remove("hidden");
 
+
     window.scrollTo({
+
         top: 0,
+
         behavior: "smooth"
+
     });
 
 }
@@ -228,7 +459,9 @@ function showHome() {
 
     showPage(homePage);
 
+
     currentCapsuleId = null;
+
 
     renderCapsules();
 
@@ -239,9 +472,12 @@ function showCreate() {
 
     showPage(createPage);
 
+
     capsuleForm.reset();
 
+
     charCount.textContent = "0";
+
 
     setMinimumDate();
 
@@ -253,19 +489,56 @@ function showCreate() {
 // ==========================================
 
 document.getElementById("navCreate")
-    .addEventListener("click", showCreate);
+    .addEventListener(
+        "click",
+        () => {
+
+            startAtmosphere();
+
+            showCreate();
+
+        }
+    );
+
 
 document.getElementById("heroCreate")
-    .addEventListener("click", showCreate);
+    .addEventListener(
+        "click",
+        () => {
+
+            startAtmosphere();
+
+            showCreate();
+
+        }
+    );
+
 
 document.getElementById("emptyCreate")
-    .addEventListener("click", showCreate);
+    .addEventListener(
+        "click",
+        () => {
+
+            startAtmosphere();
+
+            showCreate();
+
+        }
+    );
+
 
 document.getElementById("backHome")
-    .addEventListener("click", showHome);
+    .addEventListener(
+        "click",
+        showHome
+    );
+
 
 document.getElementById("capsuleBack")
-    .addEventListener("click", showHome);
+    .addEventListener(
+        "click",
+        showHome
+    );
 
 
 // ==========================================
@@ -274,38 +547,54 @@ document.getElementById("capsuleBack")
 
 function setMinimumDate() {
 
-    const now = new Date();
+    const now =
+        new Date();
+
 
     now.setMinutes(
         now.getMinutes() + 1
     );
 
-    const local = formatDateForInput(now);
 
-    unlockDateInput.min = local;
+    const local =
+        formatDateForInput(now);
+
+
+    unlockDateInput.min =
+        local;
 
 }
 
 
 function formatDateForInput(date) {
 
-    const year = date.getFullYear();
+    const year =
+        date.getFullYear();
 
-    const month = String(
-        date.getMonth() + 1
-    ).padStart(2, "0");
 
-    const day = String(
-        date.getDate()
-    ).padStart(2, "0");
+    const month =
+        String(
+            date.getMonth() + 1
+        ).padStart(2, "0");
 
-    const hours = String(
-        date.getHours()
-    ).padStart(2, "0");
 
-    const minutes = String(
-        date.getMinutes()
-    ).padStart(2, "0");
+    const day =
+        String(
+            date.getDate()
+        ).padStart(2, "0");
+
+
+    const hours =
+        String(
+            date.getHours()
+        ).padStart(2, "0");
+
+
+    const minutes =
+        String(
+            date.getMinutes()
+        ).padStart(2, "0");
+
 
     return `${year}-${month}-${day}T${hours}:${minutes}`;
 
@@ -316,92 +605,129 @@ function formatDateForInput(date) {
 // CHARACTER COUNTER
 // ==========================================
 
-messageInput.addEventListener("input", () => {
+messageInput.addEventListener(
+    "input",
+    () => {
 
-    charCount.textContent =
-        messageInput.value.length;
+        charCount.textContent =
+            messageInput.value.length;
 
-});
+    }
+);
 
 
 // ==========================================
 // CREATE CAPSULE
 // ==========================================
 
-capsuleForm.addEventListener("submit", event => {
+capsuleForm.addEventListener(
+    "submit",
+    event => {
 
-    event.preventDefault();
-
-    const title = titleInput.value.trim();
-
-    const message = messageInput.value.trim();
-
-    const unlockDate = new Date(
-        unlockDateInput.value
-    );
+        event.preventDefault();
 
 
-    // Validation
+        const title =
+            titleInput.value.trim();
 
-    if (!title || !message) {
 
-        alert("Please fill in all fields.");
+        const message =
+            messageInput.value.trim();
 
-        return;
+
+        const unlockDate =
+            new Date(
+                unlockDateInput.value
+            );
+
+
+        // ----------------------------------
+        // VALIDATION
+        // ----------------------------------
+
+        if (!title || !message) {
+
+            alert(
+                "Please fill in all fields."
+            );
+
+            return;
+
+        }
+
+
+        if (
+            Number.isNaN(
+                unlockDate.getTime()
+            )
+        ) {
+
+            alert(
+                "Please choose a valid unlock date."
+            );
+
+            return;
+
+        }
+
+
+        if (
+            unlockDate <= new Date()
+        ) {
+
+            alert(
+                "The unlock date must be in the future."
+            );
+
+            return;
+
+        }
+
+
+        // ----------------------------------
+        // CREATE CAPSULE
+        // ----------------------------------
+
+        const capsule = {
+
+            id:
+                Date.now().toString(),
+
+            title,
+
+            message,
+
+            createdAt:
+                new Date().toISOString(),
+
+            unlockAt:
+                unlockDate.toISOString()
+
+        };
+
+
+        // ----------------------------------
+        // SAVE
+        // ----------------------------------
+
+        capsules.unshift(
+            capsule
+        );
+
+
+        saveCapsules();
+
+
+        // ----------------------------------
+        // SEAL
+        // ----------------------------------
+
+        startSealingAnimation(
+            capsule
+        );
 
     }
-
-
-    if (Number.isNaN(unlockDate.getTime())) {
-
-        alert("Please choose a valid unlock date.");
-
-        return;
-
-    }
-
-
-    if (unlockDate <= new Date()) {
-
-        alert("The unlock date must be in the future.");
-
-        return;
-
-    }
-
-
-    // Create object
-
-    const capsule = {
-
-        id:
-            Date.now().toString(),
-
-        title,
-
-        message,
-
-        createdAt:
-            new Date().toISOString(),
-
-        unlockAt:
-            unlockDate.toISOString()
-
-    };
-
-
-    // Save
-
-    capsules.unshift(capsule);
-
-    saveCapsules();
-
-
-    // Show sealing animation
-
-    startSealingAnimation(capsule);
-
-});
+);
 
 
 // ==========================================
@@ -410,46 +736,79 @@ capsuleForm.addEventListener("submit", event => {
 
 function startSealingAnimation(capsule) {
 
-    sealModal.classList.remove("hidden");
+    sealModal.classList.remove(
+        "hidden"
+    );
 
-    sealingState.classList.remove("hidden");
 
-    sealedState.classList.add("hidden");
+    sealingState.classList.remove(
+        "hidden"
+    );
 
-    progressBar.style.width = "0%";
+
+    sealedState.classList.add(
+        "hidden"
+    );
+
+
+    progressBar.style.width =
+        "0%";
 
 
     let progress = 0;
 
 
-    const interval = setInterval(() => {
+    const interval =
+        setInterval(
+            () => {
 
-        progress += 2;
-
-        progressBar.style.width =
-            `${progress}%`;
+                progress += 2;
 
 
-        if (progress >= 100) {
+                progressBar.style.width =
+                    `${progress}%`;
 
-            clearInterval(interval);
 
-            sealingState.classList.add("hidden");
+                if (
+                    progress >= 100
+                ) {
 
-            sealedState.classList.remove("hidden");
+                    clearInterval(
+                        interval
+                    );
 
-            document.getElementById("finishSeal").onclick =
-                () => {
 
-                    sealModal.classList.add("hidden");
+                    sealingState.classList.add(
+                        "hidden"
+                    );
 
-                    openCapsule(capsule.id);
 
-                };
+                    sealedState.classList.remove(
+                        "hidden"
+                    );
 
-        }
 
-    }, 30);
+                    document.getElementById(
+                        "finishSeal"
+                    ).onclick =
+                        () => {
+
+                            sealModal.classList.add(
+                                "hidden"
+                            );
+
+
+                            openCapsule(
+                                capsule.id
+                            );
+
+                        };
+
+                }
+
+            },
+            30
+        );
 
 }
 
@@ -460,7 +819,9 @@ function startSealingAnimation(capsule) {
 
 function renderCapsules() {
 
-    capsuleGrid.innerHTML = "";
+    capsuleGrid.innerHTML =
+        "";
+
 
     capsuleCount.textContent =
         `${capsules.length} ${
@@ -470,95 +831,154 @@ function renderCapsules() {
         }`;
 
 
-    if (capsules.length === 0) {
+    if (
+        capsules.length === 0
+    ) {
 
-        emptyState.classList.remove("hidden");
+        emptyState.classList.remove(
+            "hidden"
+        );
 
         return;
 
     }
 
 
-    emptyState.classList.add("hidden");
+    emptyState.classList.add(
+        "hidden"
+    );
 
 
-    capsules.forEach(capsule => {
+    capsules.forEach(
+        capsule => {
 
-        const card =
-            document.createElement("div");
-
-        card.className = "capsule-card";
-
-
-        const unlocked =
-            new Date(capsule.unlockAt) <= new Date();
+            const card =
+                document.createElement(
+                    "div"
+                );
 
 
-        card.innerHTML = `
+            card.className =
+                "capsule-card";
 
-            <div class="card-top">
 
-                <div class="lock-icon">
-                    ${unlocked ? "📬" : "🔒"}
+            const unlocked =
+                new Date(
+                    capsule.unlockAt
+                ) <= new Date();
+
+
+            card.innerHTML = `
+
+                <div class="card-top">
+
+                    <div class="lock-icon">
+                        ${
+                            unlocked
+                                ? "📬"
+                                : "🔒"
+                        }
+                    </div>
+
+                    <div
+                        class="status ${
+                            unlocked
+                                ? "open"
+                                : ""
+                        }"
+                    >
+                        ${
+                            unlocked
+                                ? "OPENED"
+                                : "SEALED"
+                        }
+                    </div>
+
                 </div>
 
-                <div class="status ${unlocked ? "open" : ""}">
-                    ${unlocked ? "OPENED" : "SEALED"}
-                </div>
 
-            </div>
+                <h3>
+                    ${escapeHTML(
+                        capsule.title
+                    )}
+                </h3>
 
-            <h3>
-                ${escapeHTML(capsule.title)}
-            </h3>
 
-            <p class="capsule-date">
-                ${unlocked
-                    ? "Unlocked "
-                    : "Opens "
+                <p class="capsule-date">
+
+                    ${
+                        unlocked
+                            ? "Unlocked "
+                            : "Opens "
+                    }
+
+                    ${
+                        formatDate(
+                            capsule.unlockAt
+                        )
+                    }
+
+                </p>
+
+
+                <button
+                    class="card-delete"
+                    data-delete="${capsule.id}"
+                    title="Delete capsule"
+                >
+                    🗑
+                </button>
+
+            `;
+
+
+            card.addEventListener(
+                "click",
+                event => {
+
+                    if (
+                        event.target.closest(
+                            ".card-delete"
+                        )
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    openCapsule(
+                        capsule.id
+                    );
+
                 }
-                ${formatDate(capsule.unlockAt)}
-            </p>
-
-            <button
-                class="card-delete"
-                data-delete="${capsule.id}"
-                title="Delete capsule"
-            >
-                🗑
-            </button>
-
-        `;
+            );
 
 
-        card.addEventListener("click", event => {
+            card.querySelector(
+                ".card-delete"
+            )
+                .addEventListener(
+                    "click",
+                    event => {
 
-            if (
-                event.target.closest(".card-delete")
-            ) {
-
-                return;
-
-            }
-
-            openCapsule(capsule.id);
-
-        });
+                        event.stopPropagation();
 
 
-        card.querySelector(".card-delete")
-            .addEventListener("click", event => {
+                        requestDelete(
+                            capsule.id
+                        );
 
-                event.stopPropagation();
-
-                requestDelete(capsule.id);
-
-            });
+                    }
+                );
 
 
-        capsuleGrid.appendChild(card);
+            capsuleGrid.appendChild(
+                card
+            );
 
-    });
+        }
+    );
 
 }
 
@@ -571,7 +991,8 @@ function openCapsule(id) {
 
     const capsule =
         capsules.find(
-            item => item.id === id
+            item =>
+                item.id === id
         );
 
 
@@ -582,11 +1003,18 @@ function openCapsule(id) {
     }
 
 
-    currentCapsuleId = id;
+    currentCapsuleId =
+        id;
 
-    showPage(capsulePage);
 
-    renderCapsule(capsule);
+    showPage(
+        capsulePage
+    );
+
+
+    renderCapsule(
+        capsule
+    );
 
 }
 
@@ -598,21 +1026,31 @@ function openCapsule(id) {
 function renderCapsule(capsule) {
 
     const unlockTime =
-        new Date(capsule.unlockAt);
+        new Date(
+            capsule.unlockAt
+        );
 
-    const now = new Date();
+
+    const now =
+        new Date();
 
 
-    if (now >= unlockTime) {
+    if (
+        now >= unlockTime
+    ) {
 
-        renderUnlockedCapsule(capsule);
+        renderUnlockedCapsule(
+            capsule
+        );
 
         return;
 
     }
 
 
-    renderLockedCapsule(capsule);
+    renderLockedCapsule(
+        capsule
+    );
 
 }
 
@@ -624,7 +1062,9 @@ function renderCapsule(capsule) {
 function renderLockedCapsule(capsule) {
 
     const unlockTime =
-        new Date(capsule.unlockAt);
+        new Date(
+            capsule.unlockAt
+        );
 
 
     capsuleContent.innerHTML = `
@@ -635,46 +1075,88 @@ function renderLockedCapsule(capsule) {
                 🔒
             </div>
 
+
             <div class="unlock-label">
                 SEALED CAPSULE
             </div>
 
+
             <h1>
-                ${escapeHTML(capsule.title)}
+                ${escapeHTML(
+                    capsule.title
+                )}
             </h1>
 
+
             <p>
-                This capsule is waiting for its future.
+                This capsule is waiting
+                for its future.
             </p>
+
 
             <div class="unlock-label">
                 OPENS ON
             </div>
 
+
             <p>
-                ${formatDate(capsule.unlockAt)}
+                ${formatDate(
+                    capsule.unlockAt
+                )}
             </p>
+
 
             <div class="countdown">
 
                 <div class="time-unit">
-                    <strong id="days">--</strong>
-                    <span>DAYS</span>
+
+                    <strong id="days">
+                        --
+                    </strong>
+
+                    <span>
+                        DAYS
+                    </span>
+
                 </div>
 
-                <div class="time-unit">
-                    <strong id="hours">--</strong>
-                    <span>HOURS</span>
-                </div>
 
                 <div class="time-unit">
-                    <strong id="minutes">--</strong>
-                    <span>MINUTES</span>
+
+                    <strong id="hours">
+                        --
+                    </strong>
+
+                    <span>
+                        HOURS
+                    </span>
+
                 </div>
 
+
                 <div class="time-unit">
-                    <strong id="seconds">--</strong>
-                    <span>SECONDS</span>
+
+                    <strong id="minutes">
+                        --
+                    </strong>
+
+                    <span>
+                        MINUTES
+                    </span>
+
+                </div>
+
+
+                <div class="time-unit">
+
+                    <strong id="seconds">
+                        --
+                    </strong>
+
+                    <span>
+                        SECONDS
+                    </span>
+
                 </div>
 
             </div>
@@ -684,7 +1166,9 @@ function renderLockedCapsule(capsule) {
     `;
 
 
-    updateCountdown(unlockTime);
+    updateCountdown(
+        unlockTime
+    );
 
 }
 
@@ -697,11 +1181,10 @@ function updateCountdown(target) {
 
     const update = () => {
 
-        // If user left the page,
-        // stop worrying about this capsule.
-
         if (
-            capsulePage.classList.contains("hidden")
+            capsulePage.classList.contains(
+                "hidden"
+            )
         ) {
 
             return;
@@ -709,26 +1192,36 @@ function updateCountdown(target) {
         }
 
 
-        const now = new Date();
+        const now =
+            new Date();
+
 
         const difference =
-            target.getTime() - now.getTime();
+            target.getTime()
+            -
+            now.getTime();
 
 
-        if (difference <= 0) {
+        if (
+            difference <= 0
+        ) {
 
             const capsule =
                 capsules.find(
                     item =>
-                        item.id === currentCapsuleId
+                        item.id ===
+                        currentCapsuleId
                 );
 
 
             if (capsule) {
 
-                renderUnlockedCapsule(capsule);
+                renderUnlockedCapsule(
+                    capsule
+                );
 
             }
+
 
             return;
 
@@ -736,44 +1229,91 @@ function updateCountdown(target) {
 
 
         const seconds =
-            Math.floor(difference / 1000) % 60;
+            Math.floor(
+                difference / 1000
+            ) % 60;
+
 
         const minutes =
-            Math.floor(difference / 60000) % 60;
+            Math.floor(
+                difference / 60000
+            ) % 60;
+
 
         const hours =
-            Math.floor(difference / 3600000) % 24;
+            Math.floor(
+                difference / 3600000
+            ) % 24;
+
 
         const days =
-            Math.floor(difference / 86400000);
+            Math.floor(
+                difference / 86400000
+            );
 
 
         const daysElement =
-            document.getElementById("days");
+            document.getElementById(
+                "days"
+            );
+
 
         const hoursElement =
-            document.getElementById("hours");
+            document.getElementById(
+                "hours"
+            );
+
 
         const minutesElement =
-            document.getElementById("minutes");
+            document.getElementById(
+                "minutes"
+            );
+
 
         const secondsElement =
-            document.getElementById("seconds");
+            document.getElementById(
+                "seconds"
+            );
 
 
-        if (daysElement) {
+        if (
+            daysElement
+        ) {
 
             daysElement.textContent =
-                String(days).padStart(2, "0");
+                String(
+                    days
+                ).padStart(
+                    2,
+                    "0"
+                );
+
 
             hoursElement.textContent =
-                String(hours).padStart(2, "0");
+                String(
+                    hours
+                ).padStart(
+                    2,
+                    "0"
+                );
+
 
             minutesElement.textContent =
-                String(minutes).padStart(2, "0");
+                String(
+                    minutes
+                ).padStart(
+                    2,
+                    "0"
+                );
+
 
             secondsElement.textContent =
-                String(seconds).padStart(2, "0");
+                String(
+                    seconds
+                ).padStart(
+                    2,
+                    "0"
+                );
 
         }
 
@@ -789,7 +1329,9 @@ function updateCountdown(target) {
 // UNLOCKED CAPSULE
 // ==========================================
 
-function renderUnlockedCapsule(capsule) {
+function renderUnlockedCapsule(
+    capsule
+) {
 
     capsuleContent.innerHTML = `
 
@@ -801,13 +1343,18 @@ function renderUnlockedCapsule(capsule) {
                     📬
                 </div>
 
+
                 <div class="opened-label">
                     CAPSULE OPENED
                 </div>
 
+
                 <h1>
-                    ${escapeHTML(capsule.title)}
+                    ${escapeHTML(
+                        capsule.title
+                    )}
                 </h1>
+
 
                 <p>
                     The future has arrived.
@@ -817,19 +1364,27 @@ function renderUnlockedCapsule(capsule) {
 
 
             <div class="message-paper">
-                ${escapeHTML(capsule.message)}
+
+                ${escapeHTML(
+                    capsule.message
+                )}
+
             </div>
 
 
             <div class="open-date">
 
                 Created:
-                ${formatDate(capsule.createdAt)}
+                ${formatDate(
+                    capsule.createdAt
+                )}
 
                 <br><br>
 
                 Opened:
-                ${formatDate(new Date().toISOString())}
+                ${formatDate(
+                    new Date().toISOString()
+                )}
 
             </div>
 
@@ -846,50 +1401,76 @@ function renderUnlockedCapsule(capsule) {
 
 function requestDelete(id) {
 
-    selectedDeleteId = id;
+    selectedDeleteId =
+        id;
 
-    deleteModal.classList.remove("hidden");
+
+    deleteModal.classList.remove(
+        "hidden"
+    );
 
 }
 
 
-document.getElementById("cancelDelete")
-    .addEventListener("click", () => {
+document.getElementById(
+    "cancelDelete"
+)
+    .addEventListener(
+        "click",
+        () => {
 
-        deleteModal.classList.add("hidden");
-
-        selectedDeleteId = null;
-
-    });
-
-
-document.getElementById("confirmDelete")
-    .addEventListener("click", () => {
-
-        if (!selectedDeleteId) {
-
-            return;
-
-        }
-
-
-        capsules =
-            capsules.filter(
-                capsule =>
-                    capsule.id !== selectedDeleteId
+            deleteModal.classList.add(
+                "hidden"
             );
 
 
-        saveCapsules();
+            selectedDeleteId =
+                null;
+
+        }
+    );
 
 
-        deleteModal.classList.add("hidden");
+document.getElementById(
+    "confirmDelete"
+)
+    .addEventListener(
+        "click",
+        () => {
 
-        selectedDeleteId = null;
+            if (
+                !selectedDeleteId
+            ) {
 
-        renderCapsules();
+                return;
 
-    });
+            }
+
+
+            capsules =
+                capsules.filter(
+                    capsule =>
+                        capsule.id !==
+                        selectedDeleteId
+                );
+
+
+            saveCapsules();
+
+
+            deleteModal.classList.add(
+                "hidden"
+            );
+
+
+            selectedDeleteId =
+                null;
+
+
+            renderCapsules();
+
+        }
+    );
 
 
 // ==========================================
@@ -899,18 +1480,25 @@ document.getElementById("confirmDelete")
 function formatDate(dateString) {
 
     const date =
-        new Date(dateString);
+        new Date(
+            dateString
+        );
 
 
     return date.toLocaleString(
         undefined,
         {
+
             day: "numeric",
+
             month: "long",
+
             year: "numeric",
 
             hour: "2-digit",
+
             minute: "2-digit"
+
         }
     );
 
@@ -924,9 +1512,14 @@ function formatDate(dateString) {
 function escapeHTML(value) {
 
     const div =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
 
-    div.textContent = value;
+
+    div.textContent =
+        value;
+
 
     return div.innerHTML;
 
@@ -946,14 +1539,19 @@ renderCapsules();
 // REFRESH ARCHIVE
 // ==========================================
 
-setInterval(() => {
+setInterval(
+    () => {
 
-    if (
-        !homePage.classList.contains("hidden")
-    ) {
+        if (
+            !homePage.classList.contains(
+                "hidden"
+            )
+        ) {
 
-        renderCapsules();
+            renderCapsules();
 
-    }
+        }
 
-}, 1000);
+    },
+    1000
+);

@@ -116,15 +116,9 @@ let currentTrack = 0;
 
 const playlist = [
 
-    "assets/Minecraft Music.mp3",
+    "assets/AriaMath.mp3",
 
-    "assets/Minecraft Music2.mp3",
-
-    "assets/Minecraft Music3.mp3",
-
-    "assets/Minecraft Music4.mp3"
-
-    "assets/Minecraft Music5.mp3"
+    "assets/MoogCity2.mp3",
 
 ];
 

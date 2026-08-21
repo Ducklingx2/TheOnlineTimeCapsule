@@ -71,7 +71,7 @@ const capsuleContent =
 
 
 /* =========================================
-   ENTER OVERLAY
+   AUDIO SYSTEM
 ========================================= */
 
 const enterOverlay =
@@ -79,11 +79,6 @@ const enterOverlay =
 
 const enterButton =
     document.getElementById("enterButton");
-
-
-/* =========================================
-   AUDIO
-========================================= */
 
 const rainAudio =
     document.getElementById("rainAudio");
@@ -104,15 +99,13 @@ const musicVolume =
     document.getElementById("lofiVolume");
 
 
-let audioEnabled = true;
-
-
 /* =========================================
-   AUDIO VOLUMES
+   AUDIO SETTINGS
 ========================================= */
 
-rainAudio.volume = 0.4;
+let audioEnabled = true;
 
+rainAudio.volume = 0.4;
 musicAudio.volume = 0.2;
 
 
@@ -121,22 +114,17 @@ musicAudio.volume = 0.2;
 ========================================= */
 
 const playlist = [
-
     "assets/AriaMath.mp3",
-
     "assets/song2.mp3",
-
     "assets/song3.mp3",
-
     "assets/song4.mp3"
-
 ];
 
 let currentTrack = 0;
 
 
 /* =========================================
-   LOAD MUSIC TRACK
+   LOAD MUSIC
 ========================================= */
 
 function loadTrack(index) {
@@ -148,21 +136,34 @@ function loadTrack(index) {
 
     musicAudio.load();
 
+    console.log(
+        "Loading:",
+        playlist[currentTrack]
+    );
+
 }
 
 
 /* =========================================
-   PLAY CURRENT TRACK
+   PLAY MUSIC
 ========================================= */
 
-function playCurrentTrack() {
+function playMusic() {
 
     musicAudio
         .play()
-        .catch(error => {
+        .then(() => {
 
             console.log(
-                "Music could not start:",
+                "Playing:",
+                playlist[currentTrack]
+            );
+
+        })
+        .catch(error => {
+
+            console.error(
+                "Music failed:",
                 error
             );
 
@@ -172,19 +173,21 @@ function playCurrentTrack() {
 
 
 /* =========================================
-   MUSIC PLAYLIST
+   NEXT SONG
 ========================================= */
 
 musicAudio.addEventListener(
     "ended",
     () => {
 
+        console.log(
+            "Finished:",
+            playlist[currentTrack]
+        );
+
+
         currentTrack++;
 
-        /*
-         * If we reached the end
-         * of the playlist, start again.
-         */
 
         if (
             currentTrack >=
@@ -195,77 +198,76 @@ musicAudio.addEventListener(
 
         }
 
+
         loadTrack(currentTrack);
 
-        playCurrentTrack();
+        playMusic();
 
     }
 );
 
 
 /* =========================================
-   START ATMOSPHERE
+   START AUDIO
 ========================================= */
 
-async function startAtmosphere() {
+async function startAudio() {
+
+    console.log(
+        "Starting Time Capsule audio..."
+    );
+
+
+    /* -----------------------------
+       RAIN
+    ----------------------------- */
 
     try {
 
-        /*
-         * Rain starts once.
-         * It loops forever because
-         * the HTML audio element has
-         * the "loop" attribute.
-         */
-
         await rainAudio.play();
 
-
-        /*
-         * Start first music track.
-         */
-
-        loadTrack(0);
-
-        await musicAudio.play();
+        console.log(
+            "🌧️ Rain started"
+        );
 
     }
 
     catch (error) {
 
-        console.log(
-            "Audio could not start:",
+        console.error(
+            "🌧️ Rain failed:",
             error
         );
 
     }
 
+
+    /* -----------------------------
+       MUSIC
+    ----------------------------- */
+
+    loadTrack(0);
+
+    playMusic();
+
 }
 
 
 /* =========================================
-   ENTER WEBSITE
+   ENTER
 ========================================= */
 
 enterButton.addEventListener(
     "click",
     async () => {
 
-        await startAtmosphere();
+        await startAudio();
 
-
-        /*
-         * Fade out landing overlay.
-         */
 
         enterOverlay.classList.add(
             "hidden"
         );
 
-
-        /*
-         * Show audio controls.
-         */
 
         audioControls.classList.remove(
             "hidden"
@@ -310,7 +312,7 @@ musicVolume.addEventListener(
 
 
 /* =========================================
-   MUTE / UNMUTE
+   MUTE
 ========================================= */
 
 audioToggle.addEventListener(
@@ -335,7 +337,6 @@ audioToggle.addEventListener(
 
     }
 );
-
 
 /* =========================================
    STORAGE

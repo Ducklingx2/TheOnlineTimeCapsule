@@ -4,9 +4,9 @@
 ========================================= */
 
 
-// ==========================================
-// STATE
-// ==========================================
+/* =========================================
+   STATE
+========================================= */
 
 let capsules = loadCapsules();
 
@@ -14,9 +14,9 @@ let selectedDeleteId = null;
 let currentCapsuleId = null;
 
 
-// ==========================================
-// DOM
-// ==========================================
+/* =========================================
+   DOM
+========================================= */
 
 const homePage =
     document.getElementById("homePage");
@@ -27,7 +27,6 @@ const createPage =
 const capsulePage =
     document.getElementById("capsulePage");
 
-
 const capsuleGrid =
     document.getElementById("capsuleGrid");
 
@@ -37,10 +36,8 @@ const emptyState =
 const capsuleCount =
     document.getElementById("capsuleCount");
 
-
 const capsuleForm =
     document.getElementById("capsuleForm");
-
 
 const titleInput =
     document.getElementById("title");
@@ -51,10 +48,8 @@ const messageInput =
 const unlockDateInput =
     document.getElementById("unlockDate");
 
-
 const charCount =
     document.getElementById("charCount");
-
 
 const sealModal =
     document.getElementById("sealModal");
@@ -62,32 +57,39 @@ const sealModal =
 const deleteModal =
     document.getElementById("deleteModal");
 
-
 const sealingState =
     document.getElementById("sealingState");
 
 const sealedState =
     document.getElementById("sealedState");
 
-
 const progressBar =
     document.getElementById("progressBar");
-
 
 const capsuleContent =
     document.getElementById("capsuleContent");
 
 
-// ==========================================
-// AMBIENT AUDIO
-// ==========================================
+/* =========================================
+   ENTER OVERLAY
+========================================= */
+
+const enterOverlay =
+    document.getElementById("enterOverlay");
+
+const enterButton =
+    document.getElementById("enterButton");
+
+
+/* =========================================
+   AUDIO
+========================================= */
 
 const rainAudio =
     document.getElementById("rainAudio");
 
 const musicAudio =
-    document.getElementById("musicAudio");
-
+    document.getElementById("lofiAudio");
 
 const audioControls =
     document.getElementById("audioControls");
@@ -95,90 +97,68 @@ const audioControls =
 const audioToggle =
     document.getElementById("audioToggle");
 
-
 const rainVolume =
     document.getElementById("rainVolume");
 
-const lofiVolume =
+const musicVolume =
     document.getElementById("lofiVolume");
 
 
 let audioEnabled = true;
 
-let atmosphereStarted = false;
 
-let currentTrack = 0;
+/* =========================================
+   AUDIO VOLUMES
+========================================= */
+
+rainAudio.volume = 0.4;
+
+musicAudio.volume = 0.2;
 
 
-// ==========================================
-// PLAYLIST
-// ==========================================
+/* =========================================
+   PLAYLIST
+========================================= */
 
 const playlist = [
 
     "assets/AriaMath.mp3",
 
-    "assets/MoogCity2.mp3",
+    "assets/song2.mp3",
+
+    "assets/song3.mp3",
+
+    "assets/song4.mp3"
 
 ];
 
-
-// ==========================================
-// AUDIO VOLUME
-// ==========================================
-
-if (rainAudio) {
-
-    rainAudio.volume = 0.35;
-
-}
-
-if (musicAudio) {
-
-    musicAudio.volume = 0.20;
-
-}
+let currentTrack = 0;
 
 
-// ==========================================
-// LOAD MUSIC TRACK
-// ==========================================
+/* =========================================
+   LOAD MUSIC TRACK
+========================================= */
 
 function loadTrack(index) {
 
-    if (!musicAudio) {
-
-        return;
-
-    }
-
-
     currentTrack = index;
-
 
     musicAudio.src =
         playlist[currentTrack];
-
 
     musicAudio.load();
 
 }
 
 
-// ==========================================
-// PLAY MUSIC
-// ==========================================
+/* =========================================
+   PLAY CURRENT TRACK
+========================================= */
 
 function playCurrentTrack() {
 
-    if (!musicAudio) {
-
-        return;
-
-    }
-
-
-    musicAudio.play()
+    musicAudio
+        .play()
         .catch(error => {
 
             console.log(
@@ -191,93 +171,71 @@ function playCurrentTrack() {
 }
 
 
-// ==========================================
-// NEXT TRACK
-// ==========================================
+/* =========================================
+   MUSIC PLAYLIST
+========================================= */
 
-if (musicAudio) {
+musicAudio.addEventListener(
+    "ended",
+    () => {
 
-    musicAudio.addEventListener(
-        "ended",
-        () => {
+        currentTrack++;
 
-            currentTrack++;
+        /*
+         * If we reached the end
+         * of the playlist, start again.
+         */
 
+        if (
+            currentTrack >=
+            playlist.length
+        ) {
 
-            // Restart playlist
-            // after the final song.
-
-            if (
-                currentTrack >= playlist.length
-            ) {
-
-                currentTrack = 0;
-
-            }
-
-
-            loadTrack(currentTrack);
-
-            playCurrentTrack();
+            currentTrack = 0;
 
         }
-    );
 
-}
+        loadTrack(currentTrack);
+
+        playCurrentTrack();
+
+    }
+);
 
 
-// ==========================================
-// START ATMOSPHERE
-// ==========================================
+/* =========================================
+   START ATMOSPHERE
+========================================= */
 
-function startAtmosphere() {
+async function startAtmosphere() {
 
-    if (atmosphereStarted) {
+    try {
 
-        return;
+        /*
+         * Rain starts once.
+         * It loops forever because
+         * the HTML audio element has
+         * the "loop" attribute.
+         */
+
+        await rainAudio.play();
+
+
+        /*
+         * Start first music track.
+         */
+
+        loadTrack(0);
+
+        await musicAudio.play();
 
     }
 
+    catch (error) {
 
-    atmosphereStarted = true;
-
-
-    // --------------------------------------
-    // RAIN
-    // --------------------------------------
-
-    if (rainAudio) {
-
-        rainAudio.play()
-            .catch(error => {
-
-                console.log(
-                    "Rain could not start:",
-                    error
-                );
-
-            });
-
-    }
-
-
-    // --------------------------------------
-    // MUSIC
-    // --------------------------------------
-
-    loadTrack(0);
-
-    playCurrentTrack();
-
-
-    // --------------------------------------
-    // AUDIO CONTROLS
-    // --------------------------------------
-
-    if (audioControls) {
-
-        audioControls.classList.remove(
-            "hidden"
+        console.log(
+            "Audio could not start:",
+            error
         );
 
     }
@@ -285,103 +243,103 @@ function startAtmosphere() {
 }
 
 
-// ==========================================
-// RAIN VOLUME
-// ==========================================
+/* =========================================
+   ENTER WEBSITE
+========================================= */
 
-if (rainVolume) {
+enterButton.addEventListener(
+    "click",
+    async () => {
 
-    rainVolume.addEventListener(
-        "input",
-        () => {
-
-            if (rainAudio) {
-
-                rainAudio.volume =
-                    Number(
-                        rainVolume.value
-                    );
-
-            }
-
-        }
-    );
-
-}
+        await startAtmosphere();
 
 
-// ==========================================
-// MUSIC VOLUME
-// ==========================================
+        /*
+         * Fade out landing overlay.
+         */
 
-if (lofiVolume) {
-
-    lofiVolume.addEventListener(
-        "input",
-        () => {
-
-            if (musicAudio) {
-
-                musicAudio.volume =
-                    Number(
-                        lofiVolume.value
-                    );
-
-            }
-
-        }
-    );
-
-}
+        enterOverlay.classList.add(
+            "hidden"
+        );
 
 
-// ==========================================
-// MUTE
-// ==========================================
+        /*
+         * Show audio controls.
+         */
 
-if (audioToggle) {
+        audioControls.classList.remove(
+            "hidden"
+        );
 
-    audioToggle.addEventListener(
-        "click",
-        event => {
-
-            event.stopPropagation();
-
-
-            audioEnabled =
-                !audioEnabled;
+    }
+);
 
 
-            if (rainAudio) {
+/* =========================================
+   RAIN VOLUME
+========================================= */
 
-                rainAudio.muted =
-                    !audioEnabled;
+rainVolume.addEventListener(
+    "input",
+    () => {
 
-            }
+        rainAudio.volume =
+            Number(
+                rainVolume.value
+            );
 
-
-            if (musicAudio) {
-
-                musicAudio.muted =
-                    !audioEnabled;
-
-            }
-
-
-            audioToggle.textContent =
-                audioEnabled
-                    ? "🔊"
-                    : "🔇";
-
-        }
-    );
-
-}
+    }
+);
 
 
-// ==========================================
-// STORAGE
-// ==========================================
+/* =========================================
+   MUSIC VOLUME
+========================================= */
+
+musicVolume.addEventListener(
+    "input",
+    () => {
+
+        musicAudio.volume =
+            Number(
+                musicVolume.value
+            );
+
+    }
+);
+
+
+/* =========================================
+   MUTE / UNMUTE
+========================================= */
+
+audioToggle.addEventListener(
+    "click",
+    () => {
+
+        audioEnabled =
+            !audioEnabled;
+
+
+        rainAudio.muted =
+            !audioEnabled;
+
+        musicAudio.muted =
+            !audioEnabled;
+
+
+        audioToggle.textContent =
+            audioEnabled
+                ? "🔊"
+                : "🔇";
+
+    }
+);
+
+
+/* =========================================
+   STORAGE
+========================================= */
 
 function loadCapsules() {
 
@@ -392,18 +350,18 @@ function loadCapsules() {
                 "timeCapsules"
             );
 
-
         return saved
             ? JSON.parse(saved)
             : [];
 
-    } catch (error) {
+    }
+
+    catch (error) {
 
         console.error(
             "Could not load capsules:",
             error
         );
-
 
         return [];
 
@@ -422,28 +380,33 @@ function saveCapsules() {
 }
 
 
-// ==========================================
-// NAVIGATION
-// ==========================================
+/* =========================================
+   NAVIGATION
+========================================= */
 
 function showPage(page) {
 
-    homePage.classList.add("hidden");
+    homePage.classList.add(
+        "hidden"
+    );
 
-    createPage.classList.add("hidden");
+    createPage.classList.add(
+        "hidden"
+    );
 
-    capsulePage.classList.add("hidden");
+    capsulePage.classList.add(
+        "hidden"
+    );
 
 
-    page.classList.remove("hidden");
+    page.classList.remove(
+        "hidden"
+    );
 
 
     window.scrollTo({
-
         top: 0,
-
         behavior: "smooth"
-
     });
 
 }
@@ -453,9 +416,7 @@ function showHome() {
 
     showPage(homePage);
 
-
     currentCapsuleId = null;
-
 
     renderCapsules();
 
@@ -466,78 +427,62 @@ function showCreate() {
 
     showPage(createPage);
 
-
     capsuleForm.reset();
 
-
     charCount.textContent = "0";
-
 
     setMinimumDate();
 
 }
 
 
-// ==========================================
-// CREATE BUTTONS
-// ==========================================
+/* =========================================
+   CREATE BUTTONS
+========================================= */
 
-document.getElementById("navCreate")
+document
+    .getElementById("navCreate")
     .addEventListener(
         "click",
-        () => {
-
-            startAtmosphere();
-
-            showCreate();
-
-        }
+        showCreate
     );
 
 
-document.getElementById("heroCreate")
+document
+    .getElementById("heroCreate")
     .addEventListener(
         "click",
-        () => {
-
-            startAtmosphere();
-
-            showCreate();
-
-        }
+        showCreate
     );
 
 
-document.getElementById("emptyCreate")
+document
+    .getElementById("emptyCreate")
     .addEventListener(
         "click",
-        () => {
-
-            startAtmosphere();
-
-            showCreate();
-
-        }
+        showCreate
     );
 
 
-document.getElementById("backHome")
+document
+    .getElementById("backHome")
     .addEventListener(
         "click",
         showHome
     );
 
 
-document.getElementById("capsuleBack")
+document
+    .getElementById("capsuleBack")
     .addEventListener(
         "click",
         showHome
     );
 
 
-// ==========================================
-// MINIMUM DATE
-// ==========================================
+/* =========================================
+   MINIMUM DATE
+========================================= */
 
 function setMinimumDate() {
 
@@ -559,6 +504,10 @@ function setMinimumDate() {
 
 }
 
+
+/* =========================================
+   DATE INPUT FORMAT
+========================================= */
 
 function formatDateForInput(date) {
 
@@ -590,14 +539,17 @@ function formatDateForInput(date) {
         ).padStart(2, "0");
 
 
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
+    return (
+        `${year}-${month}-${day}` +
+        `T${hours}:${minutes}`
+    );
 
 }
 
 
-// ==========================================
-// CHARACTER COUNTER
-// ==========================================
+/* =========================================
+   CHARACTER COUNTER
+========================================= */
 
 messageInput.addEventListener(
     "input",
@@ -610,9 +562,9 @@ messageInput.addEventListener(
 );
 
 
-// ==========================================
-// CREATE CAPSULE
-// ==========================================
+/* =========================================
+   CREATE CAPSULE
+========================================= */
 
 capsuleForm.addEventListener(
     "submit",
@@ -635,11 +587,14 @@ capsuleForm.addEventListener(
             );
 
 
-        // ----------------------------------
-        // VALIDATION
-        // ----------------------------------
+        /* -----------------------------
+           VALIDATION
+        ----------------------------- */
 
-        if (!title || !message) {
+        if (
+            !title ||
+            !message
+        ) {
 
             alert(
                 "Please fill in all fields."
@@ -678,9 +633,9 @@ capsuleForm.addEventListener(
         }
 
 
-        // ----------------------------------
-        // CREATE CAPSULE
-        // ----------------------------------
+        /* -----------------------------
+           CREATE CAPSULE
+        ----------------------------- */
 
         const capsule = {
 
@@ -700,21 +655,20 @@ capsuleForm.addEventListener(
         };
 
 
-        // ----------------------------------
-        // SAVE
-        // ----------------------------------
+        /* -----------------------------
+           SAVE CAPSULE
+        ----------------------------- */
 
         capsules.unshift(
             capsule
         );
 
-
         saveCapsules();
 
 
-        // ----------------------------------
-        // SEAL
-        // ----------------------------------
+        /* -----------------------------
+           SEAL
+        ----------------------------- */
 
         startSealingAnimation(
             capsule
@@ -724,11 +678,13 @@ capsuleForm.addEventListener(
 );
 
 
-// ==========================================
-// SEALING ANIMATION
-// ==========================================
+/* =========================================
+   SEALING ANIMATION
+========================================= */
 
-function startSealingAnimation(capsule) {
+function startSealingAnimation(
+    capsule
+) {
 
     sealModal.classList.remove(
         "hidden"
@@ -782,9 +738,11 @@ function startSealingAnimation(capsule) {
                     );
 
 
-                    document.getElementById(
-                        "finishSeal"
-                    ).onclick =
+                    document
+                        .getElementById(
+                            "finishSeal"
+                        )
+                        .onclick =
                         () => {
 
                             sealModal.classList.add(
@@ -807,9 +765,9 @@ function startSealingAnimation(capsule) {
 }
 
 
-// ==========================================
-// RENDER CAPSULES
-// ==========================================
+/* =========================================
+   RENDER CAPSULES
+========================================= */
 
 function renderCapsules() {
 
@@ -824,6 +782,10 @@ function renderCapsules() {
                 : "capsules"
         }`;
 
+
+    /* -----------------------------
+       EMPTY STATE
+    ----------------------------- */
 
     if (
         capsules.length === 0
@@ -842,6 +804,10 @@ function renderCapsules() {
         "hidden"
     );
 
+
+    /* -----------------------------
+       CAPSULE CARDS
+    ----------------------------- */
 
     capsules.forEach(
         capsule => {
@@ -874,18 +840,18 @@ function renderCapsules() {
                         }
                     </div>
 
-                    <div
-                        class="status ${
-                            unlocked
-                                ? "open"
-                                : ""
-                        }"
-                    >
+                    <div class="status ${
+                        unlocked
+                            ? "open"
+                            : ""
+                    }">
+
                         ${
                             unlocked
                                 ? "OPENED"
                                 : "SEALED"
                         }
+
                     </div>
 
                 </div>
@@ -906,11 +872,9 @@ function renderCapsules() {
                             : "Opens "
                     }
 
-                    ${
-                        formatDate(
-                            capsule.unlockAt
-                        )
-                    }
+                    ${formatDate(
+                        capsule.unlockAt
+                    )}
 
                 </p>
 
@@ -925,6 +889,10 @@ function renderCapsules() {
 
             `;
 
+
+            /* -------------------------
+               OPEN CAPSULE
+            ------------------------- */
 
             card.addEventListener(
                 "click",
@@ -949,15 +917,19 @@ function renderCapsules() {
             );
 
 
-            card.querySelector(
-                ".card-delete"
-            )
+            /* -------------------------
+               DELETE CAPSULE
+            ------------------------- */
+
+            card
+                .querySelector(
+                    ".card-delete"
+                )
                 .addEventListener(
                     "click",
                     event => {
 
                         event.stopPropagation();
-
 
                         requestDelete(
                             capsule.id
@@ -977,9 +949,9 @@ function renderCapsules() {
 }
 
 
-// ==========================================
-// OPEN CAPSULE
-// ==========================================
+/* =========================================
+   OPEN CAPSULE
+========================================= */
 
 function openCapsule(id) {
 
@@ -1013,11 +985,13 @@ function openCapsule(id) {
 }
 
 
-// ==========================================
-// RENDER SINGLE CAPSULE
-// ==========================================
+/* =========================================
+   RENDER SINGLE CAPSULE
+========================================= */
 
-function renderCapsule(capsule) {
+function renderCapsule(
+    capsule
+) {
 
     const unlockTime =
         new Date(
@@ -1049,11 +1023,13 @@ function renderCapsule(capsule) {
 }
 
 
-// ==========================================
-// LOCKED CAPSULE
-// ==========================================
+/* =========================================
+   LOCKED CAPSULE
+========================================= */
 
-function renderLockedCapsule(capsule) {
+function renderLockedCapsule(
+    capsule
+) {
 
     const unlockTime =
         new Date(
@@ -1167,13 +1143,20 @@ function renderLockedCapsule(capsule) {
 }
 
 
-// ==========================================
-// COUNTDOWN
-// ==========================================
+/* =========================================
+   COUNTDOWN
+========================================= */
 
-function updateCountdown(target) {
+function updateCountdown(
+    target
+) {
 
     const update = () => {
+
+        /*
+         * Stop updating if the user
+         * has left the capsule page.
+         */
 
         if (
             capsulePage.classList.contains(
@@ -1191,10 +1174,13 @@ function updateCountdown(target) {
 
 
         const difference =
-            target.getTime()
-            -
+            target.getTime() -
             now.getTime();
 
+
+        /* -----------------------------
+           UNLOCK
+        ----------------------------- */
 
         if (
             difference <= 0
@@ -1216,11 +1202,14 @@ function updateCountdown(target) {
 
             }
 
-
             return;
 
         }
 
+
+        /* -----------------------------
+           TIME CALCULATION
+        ----------------------------- */
 
         const seconds =
             Math.floor(
@@ -1245,6 +1234,10 @@ function updateCountdown(target) {
                 difference / 86400000
             );
 
+
+        /* -----------------------------
+           DOM
+        ----------------------------- */
 
         const daysElement =
             document.getElementById(
@@ -1271,43 +1264,30 @@ function updateCountdown(target) {
 
 
         if (
-            daysElement
+            daysElement &&
+            hoursElement &&
+            minutesElement &&
+            secondsElement
         ) {
 
             daysElement.textContent =
-                String(
-                    days
-                ).padStart(
-                    2,
-                    "0"
-                );
+                String(days)
+                    .padStart(2, "0");
 
 
             hoursElement.textContent =
-                String(
-                    hours
-                ).padStart(
-                    2,
-                    "0"
-                );
+                String(hours)
+                    .padStart(2, "0");
 
 
             minutesElement.textContent =
-                String(
-                    minutes
-                ).padStart(
-                    2,
-                    "0"
-                );
+                String(minutes)
+                    .padStart(2, "0");
 
 
             secondsElement.textContent =
-                String(
-                    seconds
-                ).padStart(
-                    2,
-                    "0"
-                );
+                String(seconds)
+                    .padStart(2, "0");
 
         }
 
@@ -1319,9 +1299,9 @@ function updateCountdown(target) {
 }
 
 
-// ==========================================
-// UNLOCKED CAPSULE
-// ==========================================
+/* =========================================
+   UNLOCKED CAPSULE
+========================================= */
 
 function renderUnlockedCapsule(
     capsule
@@ -1373,7 +1353,8 @@ function renderUnlockedCapsule(
                     capsule.createdAt
                 )}
 
-                <br><br>
+                <br>
+                <br>
 
                 Opened:
                 ${formatDate(
@@ -1389,11 +1370,13 @@ function renderUnlockedCapsule(
 }
 
 
-// ==========================================
-// DELETE
-// ==========================================
+/* =========================================
+   DELETE
+========================================= */
 
-function requestDelete(id) {
+function requestDelete(
+    id
+) {
 
     selectedDeleteId =
         id;
@@ -1406,9 +1389,14 @@ function requestDelete(id) {
 }
 
 
-document.getElementById(
-    "cancelDelete"
-)
+/* =========================================
+   CANCEL DELETE
+========================================= */
+
+document
+    .getElementById(
+        "cancelDelete"
+    )
     .addEventListener(
         "click",
         () => {
@@ -1425,9 +1413,14 @@ document.getElementById(
     );
 
 
-document.getElementById(
-    "confirmDelete"
-)
+/* =========================================
+   CONFIRM DELETE
+========================================= */
+
+document
+    .getElementById(
+        "confirmDelete"
+    )
     .addEventListener(
         "click",
         () => {
@@ -1467,11 +1460,13 @@ document.getElementById(
     );
 
 
-// ==========================================
-// DATE FORMAT
-// ==========================================
+/* =========================================
+   DATE FORMAT
+========================================= */
 
-function formatDate(dateString) {
+function formatDate(
+    dateString
+) {
 
     const date =
         new Date(
@@ -1499,11 +1494,13 @@ function formatDate(dateString) {
 }
 
 
-// ==========================================
-// HTML ESCAPE
-// ==========================================
+/* =========================================
+   HTML ESCAPE
+========================================= */
 
-function escapeHTML(value) {
+function escapeHTML(
+    value
+) {
 
     const div =
         document.createElement(
@@ -1520,18 +1517,18 @@ function escapeHTML(value) {
 }
 
 
-// ==========================================
-// INITIALIZE
-// ==========================================
+/* =========================================
+   INITIALIZE
+========================================= */
 
 setMinimumDate();
 
 renderCapsules();
 
 
-// ==========================================
-// REFRESH ARCHIVE
-// ==========================================
+/* =========================================
+   REFRESH ARCHIVE
+========================================= */
 
 setInterval(
     () => {

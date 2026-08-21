@@ -115,9 +115,7 @@ musicAudio.volume = 0.2;
 
 const playlist = [
     "assets/AriaMath.mp3",
-    "assets/song2.mp3",
-    "assets/song3.mp3",
-    "assets/song4.mp3"
+    "assets/MoogCity2.mp3"
 ];
 
 let currentTrack = 0;
